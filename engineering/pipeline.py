@@ -4,6 +4,7 @@ from streamer import stream_multiple_logs
 from format_detector import detect_format
 
 from parsers.hdfs_parser import parse_hdfs
+from parsers.hadoop_parser import parse_hadoop
 from parsers.spark_parser import parse_spark
 from parsers.windows_parser import parse_windows
 
@@ -15,6 +16,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DATASET_DIR = BASE_DIR / "dataset"
 
 LOG_FILES = [
+    DATASET_DIR / "Hadoop_2k.log",
     DATASET_DIR / "HDFS_2k.log",
     DATASET_DIR / "Windows_2k.log",
     DATASET_DIR / "Spark_2k.log",
@@ -23,6 +25,7 @@ LOG_FILES = [
 
 PARSERS = {
     "hdfs": parse_hdfs,
+    "hadoop": parse_hadoop,
     "windows": parse_windows,
     "spark": parse_spark,
 }

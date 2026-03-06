@@ -5,6 +5,7 @@ Detects the source system of a log line.
 Supports classification for:
 
 - HDFS logs
+- Hadoop logs
 - Spark logs
 - Windows logs
 
@@ -30,6 +31,15 @@ WINDOWS_TIMESTAMP = re.compile(r'^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2},')
 # Phase 2: Component Identifiers
 # ------------------------------------------------
 
+HADOOP_COMPONENTS = [
+    "org.apache.hadoop.",
+    "mapreduce",
+    "yarn.",
+    "mrappmaster",
+    "jobhistory",
+    "asyncdispatcher",
+]
+
 HDFS_COMPONENTS = [
     "dfs.datanode",
     "dfs.fsnamesystem",
@@ -54,6 +64,15 @@ WINDOWS_COMPONENTS = [
 # ------------------------------------------------
 # Phase 3: Keyword Identifiers
 # ------------------------------------------------
+
+HADOOP_KEYWORDS = [
+    "application_",
+    "appattempt_",
+    "container_",
+    "job_",
+    "hadoop",
+    "yarn",
+]
 
 HDFS_KEYWORDS = [
     "blk_",
@@ -81,6 +100,10 @@ WINDOWS_KEYWORDS = [
 # Main Detection Function
 # ------------------------------------------------
 
+def _matches_any(candidates: list[str], line: str) -> bool:
+    return any(candidate in line for candidate in candidates)
+
+
 def detect_format(log_line: str) -> str:
     """
     Detect the log source format.
@@ -91,6 +114,7 @@ def detect_format(log_line: str) -> str:
     Returns:
         str: One of the following
             - 'hdfs'
+            - 'hadoop'
             - 'spark'
             - 'windows'
             - 'unknown'
@@ -110,11 +134,18 @@ def detect_format(log_line: str) -> str:
         return "spark"
 
     if WINDOWS_TIMESTAMP.match(line):
-        return "windows"
+        if _matches_any(HADOOP_COMPONENTS, line) or _matches_any(HADOOP_KEYWORDS, line):
+            return "hadoop"
+        if _matches_any(WINDOWS_COMPONENTS, line) or _matches_any(WINDOWS_KEYWORDS, line):
+            return "windows"
 
     # ----------------------------
     # Phase 2: Component Matching
     # ----------------------------
+
+    for component in HADOOP_COMPONENTS:
+        if component in line:
+            return "hadoop"
 
     for component in HDFS_COMPONENTS:
         if component in line:
@@ -131,6 +162,10 @@ def detect_format(log_line: str) -> str:
     # ----------------------------
     # Phase 3: Keyword Matching
     # ----------------------------
+
+    for keyword in HADOOP_KEYWORDS:
+        if keyword in line:
+            return "hadoop"
 
     for keyword in HDFS_KEYWORDS:
         if keyword in line:

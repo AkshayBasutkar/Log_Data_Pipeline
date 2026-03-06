@@ -1,2 +1,0 @@
-{"timestamp":"2026-03-06T10:15:32","level":"ERROR","service":"auth","message":"DB timeout"}
-{"timestamp":"2026-03-06T10:15:40","level":"INFO","service":"auth","message":"login success"}

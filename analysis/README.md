@@ -4,31 +4,32 @@ Features
 - Log parsing
 - KPI monitoring
 - Error analysis
-- Request monitoring
-- Anomaly detection
+- Entity analysis
+- Alert visibility
 
 Tech Stack
 - Python
 - Streamlit
 - Pandas
 - Plotly
+- MongoDB
 
-Run the dashboard
+Run the analysis and dashboard
 
-1) Install dependencies (from the repo root):
-
+1. Install dependencies from the repo root:
    - `pip install -r analysis/requirements.txt`
+2. Build a metrics snapshot from MongoDB logs:
+   - `python analysis/build_metrics.py`
+3. Start the dashboard:
+   - `streamlit run analysis/dashboard.py`
 
-2) Start the dashboard:
+Data source
+- Raw logs: reads processed documents from `<DB>.logs_parsed`
+- Analysis snapshots: writes and reads dashboard-ready aggregates in `<DB>.metrics`
+- Alerts: reads alert records from `<DB>.alerts` when present
 
-   - `streamlit run analysis/dashboard/dashboard.py`
-
-Data sources
-- **MongoDB**: if `MONGO_URI` is reachable, reads from `<DB>.logs_parsed`
-- **Local files fallback**: parses `analysis/data/apache.log`, `analysis/data/app.json`, `analysis/data/syslog.log`
-- **CSV fallback**: also loads `analysis/data/logs.csv` if present
-
-What you’ll see
-- **KPIs**: total logs, errors, error rate, critical count, services, hosts, anomalies, p95 latency (when available), HTTP 5xx rate (when available)
-- **Charts**: log volume over time, error rate over time, level distribution, top services/hosts, HTTP status codes, severity distribution, derived anomaly spikes, top error messages
-- **Explorer**: recent error events + raw filtered dataset sample
+What you'll see
+- KPIs: values loaded from the latest MongoDB metrics snapshot
+- Charts: distributions and time series loaded from the latest MongoDB metrics snapshot
+- Entity analytics: HDFS blocks, Spark stages and tasks, Windows KBs and DLLs
+- Tables: recent processed logs and recent error logs stored in the snapshot

@@ -3,27 +3,32 @@ import sys
 
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-ANALYSIS_SRC_DIR = ROOT_DIR / "analysis" / "src"
+ANALYSIS_DIR = ROOT_DIR / "analysis"
 
-if str(ANALYSIS_SRC_DIR) not in sys.path:
-    sys.path.append(str(ANALYSIS_SRC_DIR))
+if str(ANALYSIS_DIR) not in sys.path:
+    sys.path.append(str(ANALYSIS_DIR))
 
 from pipeline import run_pipeline
-from log_ingestor import ingest_all
+from analytics import refresh_metrics_snapshot
 
 
 def run_all():
     """
-    Run both ingestion flows against the shared MongoDB database.
+    Ingest logs into MongoDB and refresh the dashboard metrics snapshot.
     """
 
-    run_pipeline()
+    run_pipeline(delay=0)
 
     try:
-        counts = ingest_all()
-        print(f"Batch ingestion complete: {counts}")
+        snapshot = refresh_metrics_snapshot()
+        overview = snapshot.get("overview", {})
+        print(
+            "Metrics snapshot refreshed: "
+            f"{overview.get('total_logs', 0)} logs, "
+            f"{overview.get('error_count', 0)} errors"
+        )
     except Exception as exc:
-        print(f"Batch ingestion skipped: {exc}")
+        print(f"Metrics snapshot refresh skipped: {exc}")
 
 
 if __name__ == "__main__":

@@ -23,6 +23,7 @@ LEVEL_SCORES = {
 
 SERVICE_MAP = {
     "hdfs": "storage-service",
+    "hadoop": "compute-service",
     "spark": "analytics-service",
     "windows": "system-service"
 }

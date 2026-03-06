@@ -6,3 +6,5 @@ analysis/dashboard/__pycache__/
 
 analysis/src/__pycache__/log_parser.cpython-314.pyc
 analysis/src/__pycache__/
+
+engineering/parsers/__pycache__
